@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamija Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            display: flex;
+            gap: 20px;
+        }
+
+        .dashboard {
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .dashboard-title {
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dashboard-title i {
+            font-size: 1.2em;
+            color: #1f2937;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .metric-icon {
+            background: #4f46e5;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .metric-title {
+            color: #374151;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #4f46e5;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 0;
+        }
+
+        .robot-icon {
+            font-size: 2.5em;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .robot-icon i {
+            animation: blink 4s infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 0.4;
+            }
+        }
+
+        .chat-subtitle {
+            font-size: 0.8em;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23fff' fill-opacity='0.1' d='M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 75%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #93c5fd, #3b82f6);
+            margin-left: auto;
+            color: #1e3a8a;
+        }
+
+        .bot-message {
+            background: linear-gradient(135deg, #e0f2fe, #93c5fd);
+            color: #1e3a8a;
+        }
+
+        .input-container {
+            padding: 15px 20px;
+            border-top: 1px solid #ddd;
+            display: flex;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #93c5fd;
+            border-radius: 8px;
+            margin-right: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        #user-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #4f46e5, #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 8px;
+            display: none;
+        }
+
+        footer {
+            background-color: #1f2937;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+        }
+
+        footer a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="dashboard">
+            <div class="dashboard-title">
+                <i class="fas fa-tachometer-alt"></i> <!-- Ikon baru untuk Dashboard -->
+                Dashboard
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Total Messages</div>
+                    <div class="metric-icon">
+                        <i class="fas fa-envelope-open-text"></i> <!-- Ikon baru untuk Total Messages -->
+                    </div>
+                </div>
+                <div class="metric-value" id="total-messages">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Active Session Time</div>
+                    <div class="metric-icon">
+                        <i class="fas fa-hourglass-half"></i> <!-- Ikon baru untuk Active Session Time -->
+                    </div>
+                </div>
+                <div class="metric-value" id="session-time">0:00</div>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <div class="robot-icon">
+                        <i class="fas fa-rocket"></i> <!-- Ikon baru untuk robot -->
+                    </div>
+                    <div>
+                        <h1 style="margin: 0;">Gamija Chatbot</h1>
+                        <div class="chat-subtitle">Your AI Assistant</div>
+                    </div>
+                </div>
+                <div class="wave"></div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    Hi, I'm Gamija. How can I assist you with the game today?
+                </div>
+            </div>
+            <div id="error-container" class="error-message"></div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <button onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalMessages = 0;
+        let startTime = Date.now();
+
+        function updateDashboard() {
+            document.getElementById('total-messages').textContent = totalMessages;
+
+            const sessionDuration = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(sessionDuration / 60);
+            const seconds = sessionDuration % 60;
+            document.getElementById('session-time').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        const API_URL = 'http://127.0.0.1:5000/chat';
+
+        function showError(message) {
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+
+        function addMessage(message, isUser) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            messageDiv.textContent = message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            totalMessages++;
+            updateDashboard();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            if (message === '') return;
+
+            addMessage(message, true);
+            input.value = '';
+            input.disabled = true;
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    addMessage(data.reply, false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Sorry, there was an error connecting to the server. Please try again.');
+            } finally {
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        setInterval(updateDashboard, 1000);
+    </script>
+
+    
+</body>
+
+</html>
